@@ -182,7 +182,12 @@ class TRPOAgent(TrustRegionAgent):
         old_params = self.sess.run(get_pi_params)
 
         # Save lagrange multiplier
-        self.logger.store(Alpha=alpha)
+        self.logger.store(
+            Alpha=alpha,
+            xHx=np.dot(x, Hx(x)),
+            norm_x=np.linalg.norm(x),
+            norm_g=np.linalg.norm(g),
+        )
 
         def set_and_eval(step):
             self.sess.run(set_pi_params, feed_dict={v_ph: old_params - alpha * x * step})
@@ -203,6 +208,9 @@ class TRPOAgent(TrustRegionAgent):
 
     def log(self):
         self.logger.log_tabular('Alpha', average_only=True)
+        self.logger.log_tabular('xHx', average_only=True)
+        self.logger.log_tabular('norm_x', average_only=True)
+        self.logger.log_tabular('norm_g', average_only=True)
         self.logger.log_tabular('BacktrackIters', average_only=True)
 
 

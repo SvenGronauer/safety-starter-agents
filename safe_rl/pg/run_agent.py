@@ -29,13 +29,13 @@ def run_polopt_agent(env_fn,
                      max_ep_len=1000,
                      # Discount factors:
                      gamma=0.99, 
-                     lam=0.97,
+                     lam=0.95,
                      cost_gamma=0.99, 
-                     cost_lam=0.97, 
+                     cost_lam=0.95,
                      # Policy learning:
                      ent_reg=0.,
                      # Cost constraints / penalties:
-                     cost_lim=25,
+                     cost_lim=50,
                      penalty_init=1.,
                      penalty_lr=5e-2,
                      # KL divergence:

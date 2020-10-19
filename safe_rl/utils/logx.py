@@ -11,6 +11,7 @@ import tensorflow as tf
 import os.path as osp, time, atexit, os
 from safe_rl.utils.mpi_tools import proc_id, mpi_statistics_scalar
 from safe_rl.utils.serialization_utils import convert_json
+from torch.utils.tensorboard import SummaryWriter
 
 color2num = dict(
     gray=30,
@@ -107,6 +108,10 @@ class Logger:
         self.log_headers = []
         self.log_current_row = {}
         self.exp_name = exp_name
+        self.epoch = 0
+
+        # Setup tensor board logging if enabled
+        self.summary_writer = SummaryWriter(os.path.join(self.output_dir, 'tb'))
 
     def log(self, msg, color='green'):
         """Print a colorized message to stdout."""
@@ -232,6 +237,7 @@ class Logger:
         """
         if proc_id()==0:
             vals = []
+            self.epoch += 1
             key_lens = [len(key) for key in self.log_headers]
             max_key_len = max(15,max(key_lens))
             keystr = '%'+'%d'%max_key_len
@@ -249,6 +255,14 @@ class Logger:
                     self.output_file.write("\t".join(self.log_headers)+"\n")
                 self.output_file.write("\t".join(map(str,vals))+"\n")
                 self.output_file.flush()
+
+            # Write to tensor board if enabled
+            [self.summary_writer.add_scalar(k, v, global_step=self.epoch)
+             for (k, v) in zip(self.log_headers, vals)]
+            # Flushes the event file to disk. Call this method to make sure that
+            # all pending events have been written to disk.
+            if self.summary_writer is not None:
+                self.summary_writer.flush()
         self.log_current_row.clear()
         self.first_row=False
 
