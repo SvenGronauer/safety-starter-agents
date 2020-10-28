@@ -226,7 +226,6 @@ class CPOAgent(TrustRegionAgent):
         self.margin = 0
         self.margin_lr = 0.05
 
-
     def update_pi(self, inputs):
 
         flat_g = self.training_package['flat_g']
